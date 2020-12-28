@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Regular benchmark</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/lodash/4.10.0/lodash.min.js"></script>
+    <script src="../dist/regular.min.js"></script>
+    <style>
+    .danger {
+      background-color: red;
+    }
+    </style>
+
+    <script type='text/rgl' id='t'>
+      <div>
+        <h1>{ items.length } Components</h1>
+        <p>{ action } took {time}ms.</p>
+        <button on-click={this.shuffle()}>shuffle</button>
+        <button on-click={this.add()}>add</button>
+        <table class="table table-hover table-striped test-data">
+          {#list items as item by item_index}
+            <tr class="{item.id === selected ? 'danger' : ''}">
+              <row
+                item={item}
+                on-select={this.select(item)}
+                on-remove={this.remove(item)}>
+              </row>
+            </tr>
+          {/list}
+        </table>
+      </div>
+    </script>
+
+    <script type='text/rgl' id='row'>
+      <td class="col-md-1">{item.id}</td>
+      <td class="col-md-4">
+        <a on-click={this.$emit('select', node)}>{item.label}</a>
+      </td>
+      <td class="col-md-1">
+        <button on-click={this.$emit('remove', node)}>remove</button>
+      </td>
+    </script>
+
+    <div id="el">
+    </div>
+
+    <script>
+    var total = 1000
+    var items = []
+    for (var i = 0; i < total; i++) {
+      items.push({
+        id: i,
+        label: String(Math.random()).slice(0, 5)
+      })
+    }
+
+    var s = window.performance.now()
+    console.profile('render')
+
+    const Row = Regular.extend({
+      template: document.getElementById("row")
+    });
+    Regular.component('row', Row)
+
+    const Content = Regular.extend({
+      template: document.getElementById("t")
+    });
+    const vm = new Content({
+      data: {
+        total: total,
+        time: 0,
+        action: 'Render',
+        items: items,
+        selected: null
+      },
+      shuffle: monitor('shuffle', function () {
+        this.data.items = _.shuffle(this.data.items)
+      }),
+      add: monitor('add', function () {
+        this.data.items.push({
+          id: total++,
+          label: String(Math.random()).slice(0, 5)
+        })
+      }),
+      select: monitor('select', function (item) {
+        this.data.selected = item.id
+      }),
+      remove: monitor('remove', function (item) {
+        this.data.items.splice(this.data.items.indexOf(item), 1)
+      })
+    });
+    vm.$inject('#el');
+
+    setTimeout(function () {
+      vm.data.time = window.performance.now() - s
+      vm.$update()
+      console.profileEnd('render')
+    }, 0)
+
+    function monitor (action, fn) {
+      return function () {
+        var s = window.performance.now()
+        fn.apply(this, arguments)
+        setTimeout(function () {
+          vm.data.action = action
+          vm.data.time = window.performance.now() - s
+          vm.$update()
+        }, 0)
+      }
+    }
+    </script>
+  </body>
+</html>
