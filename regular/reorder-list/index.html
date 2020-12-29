@@ -103,6 +103,7 @@
       return function () {
         var s = window.performance.now()
         fn.apply(this, arguments)
+        vm.$update()
         setTimeout(function () {
           vm.data.action = action
           vm.data.time = window.performance.now() - s

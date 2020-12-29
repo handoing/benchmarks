@@ -1,0 +1,24 @@
+{
+  "name": "benchmarks",
+  "version": "1.0.0",
+  "description": "demo",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server --no-dotfiles",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/handoing/benchmarks.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/handoing/benchmarks/issues"
+  },
+  "homepage": "https://github.com/handoing/benchmarks#readme",
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
